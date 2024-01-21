@@ -1,18 +1,18 @@
 import {
 	Object3D,
 	Vector3,
-    Scene,
+	Scene,
 	LoaderUtils,
-    WebGLRenderer,
+	WebGLRenderer,
 	PerspectiveCamera,
 	GridHelper,
-    PolarGridHelper,
-    HemisphereLight,
-    PointLight,
-    Mesh,
-    SphereGeometry,
-    Color,
-    MeshBasicMaterial,
+	PolarGridHelper,
+	HemisphereLight,
+	PointLight,
+	Mesh,
+	SphereGeometry,
+	Color,
+	MeshBasicMaterial,
 	LoadingManager,
 	BufferGeometry,
 	Line,
@@ -24,8 +24,10 @@ import {
 //Imports for managing objects and physics
 import { initCannon } from './physics';
 
-import { remControledSimObject, setSimObjectHighlight,
-         setTCSimObjectsOnClick } from './objects/createObjects';
+import {
+	remControledSimObject, setSimObjectHighlight,
+	setTCSimObjectsOnClick
+} from './objects/createObjects';
 
 // In ROS models Z points upwards
 Object3D.DefaultUp = new Vector3(0, 0, 1);
@@ -85,10 +87,32 @@ loadRobotModel(robot.xacro)
 	.then(model => {
 		robot.init(model);
 		$('.robot-info').on('click', evt => popInfo(robot.info.DE))
-		robot.setPose(robot.defaultPose);
+		//robot.setPose(robot.defaultPose);
+
+		// // START Testing WebSockets
+		// Create a WebSocket connection to the server
+		let socket = new WebSocket("ws://localhost:8060");
+
+		// Expose the socket object to the global scope for testing
+		//window.socket = socket;
+
+		// Event listener for messages from the server
+		socket.onmessage = function(event) {
+			// Parse the message data as JSON
+			let data = JSON.parse(event.data);
+			console.log("Position received");
+
+			// Check if the message contains joint positions
+			if (data.jointPositions) {
+				// Update the robot's joint positions
+				robot.setPose(data.jointPositions);
+			}
+		};
+
+		// END testing WebSockets
 
 		initScene();
-        initCannon();
+		initCannon();
 
 		ik = new IKSolver(scene, robot);
 		Simulation.init(robot, ik, ikRender);
@@ -141,7 +165,7 @@ function initScene() {
 	container = document.getElementById("sim-canvas");
 
 	scene = new Scene();
-	scene.background = new Color(0x363b4b);
+	scene.background = new Color(0x07080d);
 
 	// Camera
 	camera = new PerspectiveCamera(
@@ -156,7 +180,7 @@ function initScene() {
 
 	// Grid
 	//const grid = new PolarGridHelper(12, 16, 8, 64, 0x888888, 0xaaaaaa);
-	const grid = new GridHelper(20, 20, 0xf0f0f0, 0x888888);
+	const grid = new GridHelper(100, 100, 0xf0f0f0, 0x888888);
 	grid.rotateX(Math.PI / 2);
 	scene.add(grid);
 
@@ -285,7 +309,7 @@ function updateGroundLine() {
 }
 
 function render() {
-    renderer.render(scene, camera);
+	renderer.render(scene, camera);
 
 	for (let cb of renderCallbacks) {
 		cb(robot);
@@ -330,20 +354,20 @@ function onHoverPointerMove(evt) {
 	pointerXY.x = (evt.offsetX / container.clientWidth) * 2 - 1;
 	pointerXY.y = -(evt.offsetY / container.clientHeight) * 2 + 1;
 
-    raycaster.setFromCamera(pointerXY, camera);
-    setSimObjectHighlight(raycaster); //does this for all TransformControls of simObjects
+	raycaster.setFromCamera(pointerXY, camera);
+	setSimObjectHighlight(raycaster); //does this for all TransformControls of simObjects
 	let showRTC = false;
 
 	// Only show the robot controls if no object is visible
 	if (!simObjectActive) {
-    	const intersections = raycaster.intersectObjects([tcptarget]);
-    	showRTC = intersections.length > 0;
+		const intersections = raycaster.intersectObjects([tcptarget]);
+		showRTC = intersections.length > 0;
 	}
 
-    if (showRTC !== robotControl.visible) {
-        robotControl.visible = showRTC;
+	if (showRTC !== robotControl.visible) {
+		robotControl.visible = showRTC;
 		robotControl.enabled = showRTC;
-    }
+	}
 
 	requestAnimationFrame(render);
 }
@@ -396,15 +420,15 @@ function onClickPointerUp(evt) {
 	}
 
 	if (showRTC !== robotControl.visible) {
-        robotControl.visible = showRTC;
+		robotControl.visible = showRTC;
 		robotControl.enabled = showRTC;
-    }
+	}
 
 	requestAnimationFrame(render);
 }
 
 
-export function addRenderCallback (callback) {
+export function addRenderCallback(callback) {
 	if (renderCallbacks.includes(callback)) {
 		return;
 	}
@@ -413,17 +437,17 @@ export function addRenderCallback (callback) {
 }
 
 //Functions for access to the scene and the robot model
-export function requestAF () { requestAnimationFrame(render); }
+export function requestAF() { requestAnimationFrame(render); }
 
-export function getScene () { return scene; }
+export function getScene() { return scene; }
 
-export function getRobot () { return robot; }
+export function getRobot() { return robot; }
 
-export function getControl () {
-    const contObj = {
-        camera: camera,
-        orbitControls: cameraControl,
-        renderer: renderer,
-    }
-    return contObj;
+export function getControl() {
+	const contObj = {
+		camera: camera,
+		orbitControls: cameraControl,
+		renderer: renderer,
+	}
+	return contObj;
 }
