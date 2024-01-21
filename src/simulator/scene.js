@@ -91,7 +91,7 @@ loadRobotModel(robot.xacro)
 
 		// // START Testing WebSockets
 		// Create a WebSocket connection to the server
-		let socket = new WebSocket("ws://localhost:8060");
+		let socket = new WebSocket("ws://localhost:8080");
 
 		// Expose the socket object to the global scope for testing
 		//window.socket = socket;
