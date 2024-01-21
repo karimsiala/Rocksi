@@ -1,4 +1,4 @@
-import Split from 'split.js'
+// import Split from 'split.js'
 import lozad from 'lozad'
 import * as GUI from './simulator/gui'
 import { getDesiredLanguage, isTouch, isNarrowScreen, localize } from './helpers';
@@ -91,7 +91,7 @@ for (let i = 0; i < accordions.length; i++) {
 }
 
 
-// Split panes
+/* // Split panes
 Split(['#split-pane-1', '#split-pane-2'], {
     minSize: 0,
     snapOffset: 20,
@@ -100,7 +100,7 @@ Split(['#split-pane-1', '#split-pane-2'], {
         return {};
     }
 });
-
+ */
 
 // Tabs
 let animDuration = 200;
@@ -116,7 +116,10 @@ if (isNarrowScreen()) {
     $('#split-pane-2').css('width', '100%');
 }
 
-$('#blocks-btn').on('click', evt => {
+// Set simulation pane (split-pane-2) to 100% width
+$('#split-pane-2').css('width', '100%');
+
+/* $('#blocks-btn').on('click', evt => {
     let view = $('#split-pane-2');
     if (view.width() > 0) {
         // Shrink blocks view to 0, expand 3D view
@@ -146,7 +149,7 @@ $('#viewport-btn').on('click', evt => {
         $('#split-pane-2').animate({ width: (100 - targetRatio) + '%' }, animDuration);
         // GUI.hide();
     }
-});
+}); */
 
 
 // Add prev/next buttons to each tutorial slide
@@ -239,9 +242,12 @@ catch (e)
 {}
 
 
+// Load the simulator
+import './simulator/scene'
+
 /* // Somehow loading blockly early improves page loading
 import 'blockly'
 import './blockly_fixes'
-import './simulator/scene'
+
 import './editor/blockly'
  */
