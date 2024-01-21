@@ -239,9 +239,9 @@ catch (e)
 {}
 
 
-// Somehow loading blockly early improves page loading
+/* // Somehow loading blockly early improves page loading
 import 'blockly'
 import './blockly_fixes'
 import './simulator/scene'
 import './editor/blockly'
-
+ */
