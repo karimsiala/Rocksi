@@ -89,30 +89,15 @@ loadRobotModel(robot.xacro)
 		$('.robot-info').on('click', evt => popInfo(robot.info.DE))
 		//robot.setPose(robot.defaultPose);
 
-		// // START Testing WebSockets
-		// Create a WebSocket connection to the server
-		let socket = new WebSocket("ws://localhost:8080");
-
-		// Expose the socket object to the global scope for testing
-		//window.socket = socket;
-
-		// Event listener for messages from the server
-		socket.onmessage = function(event) {
-			// Parse the message data as JSON
-			let data = JSON.parse(event.data);
-			console.log("Position received");
-
-			// Check if the message contains joint positions
-			if (data.jointPositions) {
-				// Update the robot's joint positions
-				robot.setPose(data.jointPositions);
-			}
-		};
-
-		// END testing WebSockets
+		
 
 		initScene();
 		initCannon();
+
+		// // START Testing WebSockets
+		initWebSocket();
+		animate();
+		// END testing WebSockets
 
 		ik = new IKSolver(scene, robot);
 		Simulation.init(robot, ik, ikRender);
@@ -179,9 +164,10 @@ function initScene() {
 	camera.lookAt(0, 0, 10);
 
 	// Grid
-	//const grid = new PolarGridHelper(12, 16, 8, 64, 0x888888, 0xaaaaaa);
-	const grid = new GridHelper(100, 100, 0xf0f0f0, 0x888888);
+	const grid = new PolarGridHelper(20, 16, 8, 64, 0x888888, 0xaaaaaa);
+	//const grid = new GridHelper(30, 30, 0xf0f0f0, 0x888888);
 	grid.rotateX(Math.PI / 2);
+	
 	scene.add(grid);
 
 	// for (let i = 0; i < 5; i++) {
@@ -259,6 +245,32 @@ function initScene() {
 	onCanvasResize();
 
 	GUI.initGui(robot, cameraControl, ikRender);
+}
+
+function initWebSocket() {
+    // Create a WebSocket connection to the server
+    let socket = new WebSocket("ws://localhost:8080");
+
+    // Expose the socket object to the global scope for testing
+    // window.socket = socket;
+
+    // Event listener for messages from the server
+    socket.onmessage = function(event) {
+        // Parse the message data as JSON
+        let data = JSON.parse(event.data);
+        console.log("Position received");
+
+        // Check if the message contains joint positions
+        if (data.jointPositions) {
+            // Update the robot's joint positions
+            robot.setPose(data.jointPositions);
+        }
+    };
+}
+
+function animate() {
+	requestAnimationFrame(animate);
+	render();
 }
 
 function onCanvasResize() {
